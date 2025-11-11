@@ -1,0 +1,26 @@
+{
+  "name": "tg-bot-parser",
+  "version": "1.0.0",
+  "description": "Telegram bot URL parser - API service for extracting web preview metadata",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "parser",
+    "url",
+    "metadata"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "input": "^1.0.1",
+    "telegram": "^2.25.16"
+  }
+}
