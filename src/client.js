@@ -21,8 +21,12 @@ class MTProtoClient {
       console.log('✓ Loaded saved session');
       return new StringSession(parsed.session);
     } catch (error) {
-      console.log('No saved session found, will create new one');
-      return new StringSession('');
+      console.error('\n❌ ERROR: No session file found!');
+      console.error('\nTo authorize for the first time, run:');
+      console.error('  npm run auth');
+      console.error('\nThis will create session.json file that you can mount into Docker container.');
+      console.error('');
+      throw new Error('Session file not found. Please run: npm run auth');
     }
   }
 
@@ -55,25 +59,7 @@ class MTProtoClient {
       }
     );
 
-    await this.client.start({
-      phoneNumber: async () => {
-        console.log('\n=== Telegram Authorization Required ===');
-        console.log('This is needed only once. Session will be saved.');
-        return await input.text('Enter your phone number (with country code, e.g. +1234567890): ');
-      },
-      password: async () => {
-        return await input.text('Enter your 2FA password (if enabled): ');
-      },
-      phoneCode: async () => {
-        return await input.text('Enter the code you received in Telegram: ');
-      },
-      onError: (err) => {
-        console.error('Auth error:', err);
-      },
-    });
-
-    // Save session after successful auth
-    await this.saveSession();
+    await this.client.connect();
 
     console.log('✓ Successfully connected to Telegram');
     console.log('✓ You are logged in as:', (await this.client.getMe()).username || 'User');
