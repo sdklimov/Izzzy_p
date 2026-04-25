@@ -9,7 +9,7 @@ const SESSION_FILE = 'session.json';
 async function authorize() {
   console.log('\n╔═══════════════════════════════════════════════════════════════════════╗');
   console.log('║  Telegram Authorization Script                                        ║');
-  console.log('║  This will create session.json file for Docker container             ║');
+  console.log('║  This will create session.json file for Docker container              ║');
   console.log('╚═══════════════════════════════════════════════════════════════════════╝\n');
 
   // Check if session already exists

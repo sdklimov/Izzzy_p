@@ -1,6 +1,9 @@
 import { getClient } from './client.js'
-import { config } from './config.js'
-import { getPhotoUrl, isBotApiConfigured } from './botApi.js'
+// import { config } from './config.js'
+// import { getPhotoUrl, isBotApiConfigured } from './botApi.js'
+import { isYandexStorageConfigured, uploadImageToYandexCloud } from './storage.js'
+
+const TELEGRAM_PREVIEW_PROCESSING_DELAY_MS = 2000;
 
 class URLParserBot {
 	async parseURL(url) {
@@ -15,7 +18,7 @@ class URLParserBot {
 			})
 
 			// Wait for Telegram to process the preview
-			await this.sleep(2000)
+			await this.sleep(TELEGRAM_PREVIEW_PROCESSING_DELAY_MS)
 
 			// Get the sent message with full details
 			const messages = await client.getMessages('me', {
@@ -103,7 +106,7 @@ class URLParserBot {
 						}
 					}
 
-					// Get photo URL via Bot API or download as base64
+					// Upload the image to Yandex Cloud Object Storage when configured.
 					try {
 						const client = await getClient()
 						const buffer = await client.downloadMedia(photo, {
@@ -111,30 +114,27 @@ class URLParserBot {
 						})
 
 						if (buffer) {
-							// If Bot API is configured, upload and get direct URL
-							if (isBotApiConfigured(config.botToken, config.botChatId)) {
+							// if (isBotApiConfigured(config.botToken, config.botChatId)) {
+							if (isYandexStorageConfigured()) {
 								try {
-									const photoUrl = await getPhotoUrl(
-										buffer,
-										config.botToken,
-										config.botChatId
-									)
-									metadata.photo.url = photoUrl
-								} catch (botError) {
+									const uploadedPhoto = await uploadImageToYandexCloud(buffer);
+									// const photoUrl = await getPhotoUrl(buffer, config.botToken, config.botChatId)
+									metadata.photo.url = uploadedPhoto.url;
+								} catch (storageError) {
 									console.warn(
-										'Bot API failed, falling back to base64:',
-										botError.message
-									)
+										'Yandex Cloud upload failed, falling back to Bot API/base64:',
+										storageError.message
+									);
 									// Fallback to base64
-									const base64 = buffer.toString('base64')
-									metadata.photo.base64 = `data:image/jpeg;base64,${base64}`
+									const base64 = buffer.toString('base64');
+									metadata.photo.base64 = `data:image/jpeg;base64,${base64}`;
+									metadata.photo._note = 'Yandex Cloud upload failed, to get direct URLs instead of base64';
 								}
 							} else {
 								// No Bot API configured, use base64
-								const base64 = buffer.toString('base64')
-								metadata.photo.base64 = `data:image/jpeg;base64,${base64}`
-								metadata.photo._note =
-									'Configure BOT_TOKEN and BOT_CHAT_ID in .env to get direct URLs instead of base64'
+								const base64 = buffer.toString('base64');
+								metadata.photo.base64 = `data:image/jpeg;base64,${base64}`;
+								metadata.photo._note = 'Configure S3 in .env to get direct URLs instead of base64';
 							}
 						}
 					} catch (error) {

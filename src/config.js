@@ -16,7 +16,15 @@ export const config = {
 
   // Bot API settings (optional, for file URLs)
   botToken: process.env.BOT_TOKEN || null,
-  botChatId: process.env.BOT_CHAT_ID || null
+  botChatId: process.env.BOT_CHAT_ID || null,
+
+  // Yandex Cloud Object Storage settings
+  ycAccessKeyId: process.env.YC_ACCESS_KEY_ID || null,
+  ycSecretAccessKey: process.env.YC_SECRET_ACCESS_KEY || null,
+  ycBucket: process.env.YC_BUCKET || null,
+  ycRegion: process.env.YC_REGION || 'ru-central1',
+  ycEndpoint: process.env.YC_ENDPOINT || 'https://storage.yandexcloud.net',
+  ycPublicBaseUrl: process.env.YC_PUBLIC_BASE_URL || null
 };
 
 // Validate required config
